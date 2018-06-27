@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Services Hierarchy Example</title>
+  <meta charset="UTF-8">
+  <!-- Babel, d3 and friends. B -->
+  <script src="//ausftas.github.io/example-api-common/babel.min.js"></script>
+  <script src="//ausftas.github.io/example-api-common/d3.v4.js"></script>
+  <!-- look and feel -->
+  <link rel="stylesheet" type="text/css" href="//blog.dfilimonov.com/github-ribbons-css/ribbons.css">
+  <link rel="stylesheet" type="text/css" href="//ausftas.github.io/example-api-common/style.css">
+  <script type="text/babel" data-presets="es2015" src="//ausftas.github.io/example-api-common/style.js"></script>
+  <!-- shared sources -->
+  <script type="text/babel" data-presets="es2015" src="//ausftas.github.io/example-api-common/common.js"></script>
+</head>
+<body>
+  <div id="header"></div>
+
+  <div id="example" class="content">
+    <h1>Services Hierarchy Example</h1>
+
+    <div id="loading">
+      Please wait while it loads.
+    </div>
+
+    <div id="hierarchy" style="display: none;" >
+
+    </div>
+
+    <script type="text/babel" >
+
+      FTAPortalAPIExample.start(async function(version, agreements)
+      {
+        let hierarchy = await FTAPortalAPIExample.invoke('/services/hierarchy.json');
+
+        hierarchy = FTAPortalAPIExample.stratifyServicesHierarchy(hierarchy);
+
+        const hierarchyContainer = d3.select('#hierarchy');
+        const loading = d3.select('#loading');
+
+        hierarchyContainer.showTree(hierarchy.children, (container, node) =>
+        {
+          // color each level differently
+          container.style('color', ['#003366', '#336600', '#660033'][node.depth % 3]);
+
+          // draw the top line with hs code and description
+          container.span(node.id)
+            .style('font-weight', 'bold');
+          container.span(' - ');
+          container.span(node.data.description);
+
+          if (node.data.countryAgreements)
+          {
+            container.append('a')
+              .attr('href', `/example-api-services-data#sector=${node.id}`)
+              .text('[Show Data]')
+          }
+
+        });
+
+        hierarchyContainer.show();
+        loading.hide();
+      });
+
+    </script>
+  </div>
+
+  <div id="footer"></div>
+
+</body>
+</html>
